@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="cn.com.gudashi.android.MyStocksActivity" >
+
+    <item
+        android:showAsAction="always"
+        android:title="@string/add"
+        android:icon="@android:drawable/ic_menu_add"
+        android:onClick="addStock" />
+
+</menu>

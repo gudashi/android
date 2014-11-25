@@ -44,8 +44,6 @@ public class MainActivity extends Activity {
     		greeting = "Hello, " + username;
     	}
 
-    	System.out.println(username != null ? username : "Î´µÇÂ¼");
-
     	textGreeting.setText(greeting);
 
     	updateMenu();
@@ -55,27 +53,24 @@ public class MainActivity extends Activity {
     	if(menu != null){
     		menu.clear();
     		if(username != null){
-    			getMenuInflater().inflate(R.menu.user, menu);
+    			getMenuInflater().inflate(R.menu.main_user, menu);
     		}else{
-    			getMenuInflater().inflate(R.menu.anonymous, menu);
+    			getMenuInflater().inflate(R.menu.main_anonymous, menu);
     		}
     	}
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.login_button) {
-        	startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_REQ_CODE);
-            return true;
-        }else if(id == R.id.logout_button){
-        	UserService.setLoggedInUser(this, null);
-        	updateLoggedInUser();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onLogin(MenuItem menuItem){
+    	startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_REQ_CODE);
+    }
+
+    public void onLogout(MenuItem menuItem){
+    	UserService.setLoggedInUser(this, null);
+    	updateLoggedInUser();
+    }
+
+    public void onShowMyStocks(MenuItem menuItem){
+    	startActivity(new Intent(this, MyStocksActivity.class));
     }
 
 	@Override

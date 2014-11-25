@@ -7,6 +7,7 @@
     <uses-sdk
         android:minSdkVersion="15"
         android:targetSdkVersion="19" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -25,6 +26,18 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/login" >
+        </activity>
+        <activity
+            android:name=".MyStocksActivity"
+            android:label="@string/my_stocks"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="cn.com.gudashi.android.MainActivity" />
+        </activity>
+        <activity
+            android:name=".SearchAndSelectStockActivity"
+            android:label="@string/select_stock" >
         </activity>
     </application>
 
