@@ -12,6 +12,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import cn.com.gudashi.android.R.id;
 import cn.com.gudashi.domain.Stock;
@@ -20,6 +21,7 @@ import cn.com.gudashi.service.StockService;
 public class SearchAndSelectStockActivity extends Activity implements OnItemClickListener {
 	private EditText textKeyword;
 	private ListView listStockCandidates;
+	private ProgressBar progressBar;
 
 	private ArrayAdapter<Stock> stockCandidates;
 
@@ -30,6 +32,7 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 
 		textKeyword = (EditText)findViewById(id.text_keyword);
 		listStockCandidates = (ListView)findViewById(id.list_stock_candidates);
+		progressBar = (ProgressBar)findViewById(id.prograss_bar);
 
 		stockCandidates = new ArrayAdapter<Stock>(this, android.R.layout.simple_list_item_1);
 		listStockCandidates.setAdapter(stockCandidates);
@@ -44,6 +47,8 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 		}
 
 		cancelLastTask();
+		progressBar.setVisibility(View.VISIBLE);
+		listStockCandidates.setVisibility(View.GONE);
 		lastTask = new AsyncTask<String, Integer, List<Stock>>(){
 			private String error;
 
@@ -63,12 +68,16 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 
 			@Override
 			protected void onPostExecute(List<Stock> result) {
+				progressBar.setVisibility(View.GONE);
+				listStockCandidates.setVisibility(View.VISIBLE);
+
+				stockCandidates.clear();
+
 				if(error != null){
 					Toast.makeText(listStockCandidates.getContext(), error, Toast.LENGTH_SHORT).show();
 					return;
 				}
 
-				stockCandidates.clear();
 				stockCandidates.addAll(result);
 			}
 		}.execute(keyword);

@@ -20,9 +20,20 @@
 	        android:onClick="onSearch"/>
     </LinearLayout>
 
-    <ListView 
-        android:id="@+id/list_stock_candidates"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+        
+        <ProgressBar 
+            android:id="@+id/prograss_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+	    <ListView 
+	        android:id="@+id/list_stock_candidates"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	         />
+    </RelativeLayout>
 </LinearLayout>
