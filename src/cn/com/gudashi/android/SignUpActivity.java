@@ -3,6 +3,7 @@ package cn.com.gudashi.android;
 import java.util.regex.Pattern;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +19,8 @@ public class SignUpActivity extends Activity {
 	private EditText textNickname;
 	private EditText textPassword;
 	private EditText textPasswordConfirm;
+
+	private ProgressDialog progress;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class SignUpActivity extends Activity {
 		}
 
 		cancelLastTask();
+		progress = ProgressDialog.show(this, null, "Loading...");
 		lastTask = new AsyncTask<User, Integer, User>(){
 			private String error;
 
@@ -77,7 +81,18 @@ public class SignUpActivity extends Activity {
 			}
 
 			@Override
+			protected void onCancelled(User result) {
+				progress.dismiss();
+			}
+
+			@Override
+			protected void onCancelled() {
+				progress.dismiss();
+			}
+
+			@Override
 			protected void onPostExecute(User result) {
+				progress.dismiss();
 				if(isCancelled()){
 					return;
 				}

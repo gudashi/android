@@ -1,6 +1,7 @@
 package cn.com.gudashi.android;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ public class LoginActivity extends Activity {
 
 	private EditText textUserName;
 	private EditText textPassword;
+	private ProgressDialog progress;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class LoginActivity extends Activity {
 			textPassword.setError("填一下密码吧！");
 		}else{
 			cancelLastTask();
+			progress = ProgressDialog.show(this, null, "Loading...");
 			lastTask = new AsyncTask<String, Integer, User>(){
 				private String error;
 
@@ -56,7 +59,18 @@ public class LoginActivity extends Activity {
 				}
 
 				@Override
+				protected void onCancelled(User result) {
+					progress.dismiss();
+				}
+
+				@Override
+				protected void onCancelled() {
+					progress.dismiss();
+				}
+
+				@Override
 				protected void onPostExecute(User user) {
+					progress.dismiss();
 					if(isCancelled()){
 						return;
 					}

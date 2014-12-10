@@ -3,6 +3,7 @@ package cn.com.gudashi.android;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +13,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 import cn.com.gudashi.android.R.id;
 import cn.com.gudashi.domain.Stock;
@@ -21,7 +21,7 @@ import cn.com.gudashi.service.StockService;
 public class SearchAndSelectStockActivity extends Activity implements OnItemClickListener {
 	private EditText textKeyword;
 	private ListView listStockCandidates;
-	private ProgressBar progressBar;
+	private ProgressDialog progress;
 
 	private ArrayAdapter<Stock> stockCandidates;
 
@@ -32,7 +32,6 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 
 		textKeyword = (EditText)findViewById(id.text_keyword);
 		listStockCandidates = (ListView)findViewById(id.list_stock_candidates);
-		progressBar = (ProgressBar)findViewById(id.prograss_bar);
 
 		stockCandidates = new ArrayAdapter<Stock>(this, android.R.layout.simple_list_item_1);
 		listStockCandidates.setAdapter(stockCandidates);
@@ -47,8 +46,7 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 		}
 
 		cancelLastTask();
-		progressBar.setVisibility(View.VISIBLE);
-		listStockCandidates.setVisibility(View.GONE);
+		progress = ProgressDialog.show(this, null, "Loading...");
 		lastTask = new AsyncTask<String, Integer, List<Stock>>(){
 			private String error;
 
@@ -67,9 +65,21 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 			}
 
 			@Override
+			protected void onCancelled(List<Stock> result) {
+				progress.dismiss();
+			}
+
+			@Override
+			protected void onCancelled() {
+				progress.dismiss();
+			}
+
+			@Override
 			protected void onPostExecute(List<Stock> result) {
-				progressBar.setVisibility(View.GONE);
-				listStockCandidates.setVisibility(View.VISIBLE);
+				progress.dismiss();
+				if(isCancelled()){
+					return;
+				}
 
 				stockCandidates.clear();
 

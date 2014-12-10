@@ -21,7 +21,6 @@ public class HttpUtils {
 	
 	public static <Req, Resp> Resp postJsonForJson(String url, Req req, Class<Resp> respClass) throws Exception {
 		String json = OjmUtils.toJson(req);
-		System.out.println(json);
 		HttpURLConnection conn = openConnection(url);
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
