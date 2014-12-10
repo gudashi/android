@@ -4,7 +4,13 @@
     <string name="app_name">股大师</string>
     <string name="login">登录</string>
     <string name="logout">注销</string>
+    <string name="signup">注册</string>
     <string name="username">用户名</string>
+    <string name="username_hint">字母开头，后可跟字母数字或下划线。</string>
+    <string name="nickname">昵称</string>
+    <string name="nickname_hint">不要空格开头或结尾。</string>
+    <string name="password">密码</string>
+    <string name="password_confirm">密码确认</string>
     <string name="my_stocks">自选股</string>
     <string name="add">添加</string>
     <string name="keyword">关键字</string>
@@ -13,5 +19,4 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
 </resources>
