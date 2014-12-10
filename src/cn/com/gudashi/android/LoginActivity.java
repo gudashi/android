@@ -2,18 +2,22 @@ package cn.com.gudashi.android;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 import cn.com.gudashi.android.R.id;
-import cn.com.gudashi.android.user.UserService;
+import cn.com.gudashi.domain.User;
+import cn.com.gudashi.service.UserService;
 
 public class LoginActivity extends Activity {
 	private static final int REQ_CODE_SIGN_UP = 0;
 
 	private EditText textUserName;
+	private EditText textPassword;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,22 +25,50 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 
 		textUserName = (EditText)findViewById(id.text_username);
+		textPassword = (EditText)findViewById(id.text_password);
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	public void onLogin(View view){
 		String username = textUserName.getText().toString().trim();
+		String password = textPassword.getText().toString();
 
 		if(username.length() == 0){
-			textUserName.setError("”√ªß√˚◊‹µ√ÃÓÃÓ∞…£ø");
+			textUserName.setError("Áî®Êà∑ÂêçÊÄªÂæóÂ°´Â°´ÂêßÔºü");
 			return;
+		}else if(password.length() == 0){
+			textPassword.setError("Â°´‰∏Ä‰∏ãÂØÜÁ†ÅÂêßÔºÅ");
+		}else{
+			cancelLastTask();
+			lastTask = new AsyncTask<String, Integer, User>(){
+				private String error;
+
+				@Override
+				protected User doInBackground(String... params) {
+					try{
+						return UserService.login(params[0], params[1]);
+					}catch(Exception ex){
+						ex.printStackTrace();
+						error = ex.toString();
+						return null;
+					}
+				}
+
+				@Override
+				protected void onPostExecute(User user) {
+					if(isCancelled()){
+						return;
+					}
+
+					if(user != null){
+						onSignedIn(user);
+					}else if(error != null){
+						Toast.makeText(LoginActivity.this, error, Toast.LENGTH_SHORT).show();
+					}
+				}
+			}.execute(username, password);
 		}
-
-		UserService.setLoggedInUser(this, username);
-
-		setResult(RESULT_OK);
-		finish();
 	}
 
 	@Override
@@ -56,5 +88,36 @@ public class LoginActivity extends Activity {
 
 	public void onSignup(MenuItem menuItem){
 		startActivityForResult(new Intent(this, SignUpActivity.class), REQ_CODE_SIGN_UP);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(resultCode == RESULT_OK){
+			if(requestCode == REQ_CODE_SIGN_UP){
+				if(data.getSerializableExtra("user") instanceof User){
+					User user = (User)data.getSerializableExtra("user");
+					onSignedIn(user);
+				}
+			}
+		}
+	}
+
+	private void onSignedIn(User user) {
+		Toast.makeText(this, "Welcome, " + user.getName(), Toast.LENGTH_SHORT).show();
+		setResult(RESULT_OK, new Intent().putExtra("user", user));
+		finish();
+	}
+
+	private AsyncTask<?, ?, ?> lastTask;
+	private void cancelLastTask() {
+		if(lastTask != null){
+			lastTask.cancel(true);
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		cancelLastTask();
+		super.onDestroy();
 	}
 }

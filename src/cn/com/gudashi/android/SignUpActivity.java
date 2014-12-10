@@ -3,10 +3,15 @@ package cn.com.gudashi.android;
 import java.util.regex.Pattern;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 import cn.com.gudashi.android.R.id;
+import cn.com.gudashi.domain.User;
+import cn.com.gudashi.service.UserService;
 
 public class SignUpActivity extends Activity {
 	private EditText textUsername;
@@ -52,7 +57,55 @@ public class SignUpActivity extends Activity {
 			textPasswordConfirm.setError("密码确认不对哦!");
 			ok = false;
 		}
+		if(!ok){
+			return;
+		}
 
-		System.out.println(ok);
+		cancelLastTask();
+		lastTask = new AsyncTask<User, Integer, User>(){
+			private String error;
+
+			@Override
+			protected User doInBackground(User... params) {
+				try {
+					return UserService.register(params[0]);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					error = ex.toString();
+					return null;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(User result) {
+				if(isCancelled()){
+					return;
+				}
+
+				if(result != null){
+					onRegisterSuccess(result);
+				}else if(error != null){
+					Toast.makeText(SignUpActivity.this, error, Toast.LENGTH_SHORT).show();
+				}
+			}
+		}.execute(new User(username, nickname, password));
+	}
+
+	private void onRegisterSuccess(User user) {
+		setResult(RESULT_OK, new Intent().putExtra("user", user));
+		finish();
+	}
+
+	private AsyncTask<?, ?, ?> lastTask;
+	private void cancelLastTask() {
+		if(lastTask != null){
+			lastTask.cancel(true);
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		cancelLastTask();
+		super.onDestroy();
 	}
 }

@@ -34,7 +34,7 @@ public class MyStocksActivity extends Activity {
 		stockAdapter.addAll(
 				StockService.getMyStocks(
 						this, 
-						UserService.getLoggedInUser(this)));
+						UserService.getLoggedInUser(this).getId()));
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class MyStocksActivity extends Activity {
 		}
 		StockService.storeMyStocks(
 				this,
-				UserService.getLoggedInUser(this), 
+				UserService.getLoggedInUser(this).getId(), 
 				list);
 	}
 

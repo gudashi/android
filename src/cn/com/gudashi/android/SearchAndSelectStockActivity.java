@@ -42,7 +42,7 @@ public class SearchAndSelectStockActivity extends Activity implements OnItemClic
 	public void onSearch(View view){
 		String keyword = textKeyword.getText().toString().trim();
 		if(keyword.length() == 0){
-			textKeyword.setError("ÇëÌîĞ´¹Ø¼ü×Ö£¡");
+			textKeyword.setError("è¯·å¡«å†™å…³é”®å­—ï¼");
 			return;
 		}
 

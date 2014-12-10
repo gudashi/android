@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import cn.com.gudashi.android.R.id;
 import cn.com.gudashi.android.user.UserService;
+import cn.com.gudashi.domain.User;
 
 
 public class MainActivity extends Activity {
@@ -15,7 +16,7 @@ public class MainActivity extends Activity {
 
     private Menu menu;
     private TextView textGreeting;
-    private String username;
+    User user = null;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,10 @@ public class MainActivity extends Activity {
 
         textGreeting = (TextView)findViewById(id.text_greeting);
 
-        updateLoggedInUser();
+        User user = UserService.getLoggedInUser(this);
+        if(user != null){
+        	updateLoggedInUser(user);
+        }
     }
 
     @Override
@@ -36,15 +40,14 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    private void updateLoggedInUser(){
-    	String greeting = "Hello, �οͣ�";
+    private void updateLoggedInUser(User user){
+    	this.user = user;
 
-    	username = UserService.getLoggedInUser(this);
-    	if(username != null){
-    		greeting = "Hello, " + username;
+    	if(user != null){
+    		textGreeting.setText("你好, " + user.getName() + "！");
+    	}else{
+    		textGreeting.setText("你好, 游客！");
     	}
-
-    	textGreeting.setText(greeting);
 
     	updateMenu();
     }
@@ -52,7 +55,7 @@ public class MainActivity extends Activity {
     private void updateMenu(){
     	if(menu != null){
     		menu.clear();
-    		if(username != null){
+    		if(user != null){
     			getMenuInflater().inflate(R.menu.main_user, menu);
     		}else{
     			getMenuInflater().inflate(R.menu.main_anonymous, menu);
@@ -66,7 +69,7 @@ public class MainActivity extends Activity {
 
     public void onLogout(MenuItem menuItem){
     	UserService.setLoggedInUser(this, null);
-    	updateLoggedInUser();
+    	updateLoggedInUser(null);
     }
 
     public void onShowMyStocks(MenuItem menuItem){
@@ -77,7 +80,11 @@ public class MainActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(resultCode == RESULT_OK){
 			if(requestCode == LOGIN_REQ_CODE){
-				updateLoggedInUser();
+				if(data.getSerializableExtra("user") instanceof User){
+					User user = (User)data.getSerializableExtra("user");
+					UserService.setLoggedInUser(this, user);
+					updateLoggedInUser(user);
+				}
 			}
 		}
 	}
