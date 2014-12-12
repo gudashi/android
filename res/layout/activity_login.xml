@@ -19,4 +19,9 @@
         android:onClick="onLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:background="@drawable/qq_login"
+        android:layout_width="76dp"
+        android:layout_height="24dp"
+        android:onClick="onQqLogin" />
 </LinearLayout>

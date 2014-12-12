@@ -1,5 +1,7 @@
 package cn.com.gudashi.android;
 
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -10,9 +12,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import cn.com.gudashi.Config;
 import cn.com.gudashi.android.R.id;
 import cn.com.gudashi.domain.User;
 import cn.com.gudashi.service.UserService;
+
+import com.tencent.connect.UserInfo;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
 
 public class LoginActivity extends Activity {
 	private static final int REQ_CODE_SIGN_UP = 0;
@@ -114,6 +122,10 @@ public class LoginActivity extends Activity {
 				}
 			}
 		}
+
+		if(tencent != null){
+			tencent.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 
 	private void onSignedIn(User user) {
@@ -133,5 +145,68 @@ public class LoginActivity extends Activity {
 	protected void onDestroy() {
 		cancelLastTask();
 		super.onDestroy();
+	}
+
+	private Tencent tencent;
+	public void onQqLogin(View view){
+		if(tencent == null){
+			tencent = Tencent.createInstance(Config.QQ_APP_ID, getApplicationContext());
+		}
+		if(!tencent.isSessionValid()){
+			tencent.login(this, null, new IUiListener() {
+				@Override
+				public void onError(UiError error) {
+					Toast.makeText(LoginActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+				}
+				
+				@Override
+				public void onComplete(Object data) {
+					try{
+						if(data instanceof JSONObject){
+							JSONObject json = (JSONObject)data;
+							System.out.println(json);
+							doGetQqInfo();
+						}
+					}catch(Exception ex){
+						ex.printStackTrace();
+					}
+				}
+				
+				@Override
+				public void onCancel() {
+					Toast.makeText(LoginActivity.this, "QQ登录已取消", Toast.LENGTH_SHORT).show();
+				}
+			});
+		}else{
+			doGetQqInfo();
+		}
+	}
+
+	public void doGetQqInfo(){
+		UserInfo info = new UserInfo(getApplicationContext(), tencent.getQQToken());
+		info.getUserInfo(new IUiListener() {
+			@Override
+			public void onError(UiError arg0) {
+				Toast.makeText(LoginActivity.this, arg0.toString(), Toast.LENGTH_SHORT).show();
+			}
+			
+			@Override
+			public void onComplete(Object data) {
+				try{
+					if(data instanceof JSONObject){
+						JSONObject json = (JSONObject)data;
+						User user = new User("qq-" + tencent.getOpenId(), json.getString("nickname"), "xxx");
+						setResult(RESULT_OK, new Intent().putExtra("user", user));
+						finish();
+					}
+				}catch(Exception ex){
+					Toast.makeText(LoginActivity.this, ex.toString(), Toast.LENGTH_SHORT).show();
+				}
+			}
+			
+			@Override
+			public void onCancel() {
+			}
+		});
 	}
 }
