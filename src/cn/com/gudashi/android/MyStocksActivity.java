@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 import cn.com.gudashi.android.R.id;
 import cn.com.gudashi.android.user.UserService;
 import cn.com.gudashi.domain.Stock;
@@ -67,8 +70,38 @@ public class MyStocksActivity extends Activity {
 		if(resultCode == RESULT_OK){
 			if(requestCode == SELECT_REQ_CODE){
 				Stock stock = (Stock) data.getSerializableExtra("stock");
-				stockAdapter.add(stock);
+				onStockSelected(stock);
 			}
 		}
+	}
+
+	private void onStockSelected(final Stock stock) {
+		final ProgressDialog progressDialog = ProgressDialog.show(this, "Please wait...", "Saving selection to server...");
+		new AsyncTask<Stock, Integer, String>(){
+			@Override
+			protected String doInBackground(Stock... params) {
+				return StockService.addStock(UserService.getLoggedInUser(MyStocksActivity.this).getId(), params[0]);
+			}
+
+			@Override
+			protected void onPostExecute(String error) {
+				progressDialog.dismiss();
+				if(error != null && error.length() > 0){
+					Toast.makeText(MyStocksActivity.this, error, Toast.LENGTH_LONG).show();
+				}else{
+					stockAdapter.add(stock);
+				}
+			}
+
+			@Override
+			protected void onCancelled(String result) {
+				progressDialog.dismiss();
+			}
+
+			@Override
+			protected void onCancelled() {
+				progressDialog.dismiss();
+			}
+		}.execute(stock);
 	}
 }

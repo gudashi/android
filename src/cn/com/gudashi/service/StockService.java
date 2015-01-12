@@ -1,6 +1,7 @@
 package cn.com.gudashi.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -8,6 +9,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import cn.com.gudashi.Config;
 import cn.com.gudashi.android.SharedPrefsKey;
 import cn.com.gudashi.domain.Stock;
 import cn.com.gudashi.utils.HttpUtils;
@@ -61,6 +63,15 @@ public class StockService {
 			}
 		}
 		return list;
+	}
+
+	public static String addStock(String user, Stock stock){
+		try {
+			String error = HttpUtils.postJsonForJson(Config.SERVICE_BASE + "/my/stock/add.json?userId=" + user, Arrays.asList(stock.getCode()), String.class);
+			return error;
+		} catch (Exception ex) {
+			return ex.toString();
+		}
 	}
 
 	public static void storeMyStocks(Context context, String user, List<Stock> stocks){

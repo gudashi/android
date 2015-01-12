@@ -33,11 +33,18 @@ public class HttpUtils {
 	}
 
 	private static HttpURLConnection openConnection(String url) throws IOException {
-		return (HttpURLConnection) new URL(url).openConnection();
+		HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+		conn.setConnectTimeout(3000);
+		conn.setReadTimeout(4000);
+		return conn;
 	}
 
 	private static String getStringAndClose(HttpURLConnection conn) throws IOException {
 		try{
+			if(conn.getResponseCode() != 200){
+				throw new RuntimeException(conn.getResponseCode() + " - " + conn.getResponseMessage());
+			}
+
 			String charset = null;
 			String contentType = conn.getContentType();
 			if(contentType != null){
